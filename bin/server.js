@@ -4,6 +4,7 @@ import fs from 'fs';
 import { pathToFileURL } from 'url'
 import ChatGPTClient from '../src/ChatGPTClient.js';
 import { KeyvFile } from 'keyv-file';
+import cors from '@fastify/cors'
 
 const arg = process.argv.find((arg) => arg.startsWith('--settings'));
 let path;
@@ -43,15 +44,19 @@ if (settings.storageFilePath && !settings.cacheOptions.store) {
 const chatGptClient = new ChatGPTClient(settings.openaiApiKey, settings.chatGptClient, settings.cacheOptions);
 
 const server = fastify();
-
+await server.register(cors, { 
+    // put your options here
+  })
 server.post('/conversation', async (request, reply) => {
+    console.log("aaa");
     const conversationId = request.body.conversationId ? request.body.conversationId.toString() : undefined;
-
+    console.log(conversationId);
     let result;
     let error;
+    console.log("prompt:",request.body.prompt);
     try {
         const parentMessageId = request.body.parentMessageId ? request.body.parentMessageId.toString() : undefined;
-        result = await chatGptClient.sendMessage(request.body.message, {
+        result = await chatGptClient.sendMessage(request.body.prompt, {
             conversationId,
             parentMessageId,
         });
@@ -63,10 +68,10 @@ server.post('/conversation', async (request, reply) => {
     }
 
     if (result !== undefined) {
-        reply.send(result);
+        reply.send(result.response);
     } else {
         console.error(error);
-        reply.code(503).send({ error: 'There was an error communicating with ChatGPT.' });
+        reply.code(503).send('There was an error communicating with ChatGPT.');
     }
 });
 

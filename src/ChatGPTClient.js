@@ -4,6 +4,8 @@ import Keyv from 'keyv';
 import { encode as gptEncode } from 'gpt-3-encoder';
 
 const CHATGPT_MODEL = 'text-chat-davinci-002-20221122';
+//const CHATGPT_MODEL = 'text-davinci-003';
+//const CHATGPT_MODEL = 'text-davinci-002-render';
 
 export default class ChatGPTClient {
     constructor(
